@@ -1,21 +1,23 @@
-const SidebarMenu = () => {
+import { Link } from "react-router-dom"
+
+export default function SidebarMenu() {
     return (
         <div className="h-screen bg-gray-800 fixed w-2">
             <span className="font-semibold text-2xl px-6 py-5 block text-400 w-full">Dashboard</span>
             <ul className="list-none p-0 m-0 overflow-hidden">
                 <li>
-                    <a className="flex align-items-center cursor-pointer px-6 py-3 text-400 hover:text-100 hover:bg-gray-600 transition-duration-150 transition-colors w-full">
+                    <Link to={'/'} className="flex align-items-center cursor-pointer px-6 py-3 text-400 no-underline hover:text-100 hover:bg-gray-600 transition-duration-150 transition-colors w-full">
                         <i className="pi pi-chart-pie mr-2"></i>
                         <span className="font-medium">Overview</span>
 
-                    </a>
+                    </Link>
                 </li>
                 <li>
-                    <a className="flex align-items-center cursor-pointer px-6 py-3 text-400 hover:text-100 hover:bg-gray-600  transition-duration-150 transition-colors w-full">
+                    <Link to={'tickets'} className="flex align-items-center cursor-pointer px-6 py-3 text-400 no-underline hover:text-100 hover:bg-gray-600  transition-duration-150 transition-colors w-full">
                         <i className="pi pi-ticket mr-2"></i>
                         <span className="font-medium">Tickets</span>
 
-                    </a>
+                    </Link>
                 </li>
                 <li>
                     <a className="flex align-items-center cursor-pointer px-6 py-3 text-400 hover:text-100 hover:bg-gray-600 transition-duration-150 transition-colors w-full">
@@ -50,5 +52,3 @@ const SidebarMenu = () => {
         </div>
     )
 }
-
-export default SidebarMenu

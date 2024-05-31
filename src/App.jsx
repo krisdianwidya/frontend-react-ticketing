@@ -6,6 +6,7 @@ import Layout from "./pages/Layout";
 
 const Login = React.lazy(() => import("./pages/Login"));
 const Home = React.lazy(() => import("./pages/Overview"));
+const TicketListing = React.lazy(() => import("./pages/TicketListing"));
 
 const queryClient = new QueryClient();
 
@@ -16,11 +17,11 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route
             index
-            element={<Home />}
+            element={<React.Suspense fallback={<>...</>}><Home /></React.Suspense>}
           />
           <Route
             path="tickets"
-            element={<Home />}
+            element={<React.Suspense fallback={<>...</>}><TicketListing /></React.Suspense>}
           />
         </Route>
         <Route
