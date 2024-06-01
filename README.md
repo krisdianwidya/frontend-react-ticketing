@@ -1,6 +1,7 @@
 # How to run project
 - clone this project repo
 - ensure the node js version at v20.11.1 & npm version at 10.2.4
+- this project use react js version 18 (the latest stable) & vite version 5
 - then run npm install
 - then run npm run dev
 
