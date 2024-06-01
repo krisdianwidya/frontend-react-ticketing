@@ -1,4 +1,5 @@
 
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { DataTable } from 'primereact/datatable';
@@ -6,18 +7,38 @@ import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
 import { classNames } from 'primereact/utils';
 
-const useFetchProducts = () => {
-    return useQuery({
-        queryKey: ["products"],
-        queryFn: async () => {
-            const { data } = await axios.get("http://localhost:3001/support-tickets");
-            return data;
-        },
-    });
-};
+
 
 export default function TicketListing() {
-    const { isLoading, data, error } = useFetchProducts();
+    const [lazyState, setlazyState] = useState({
+        first: 0,
+        rows: 10,
+        page: 0,
+        sortField: null,
+        sortOrder: null
+    });
+
+    const useFetchProducts = () => {
+        return useQuery({
+            queryKey: ["tickets"],
+            queryFn: async () => {
+                // console.log('log fetch', lazyState);
+                const { data, headers } = await axios.get(`${import.meta.env.VITE_BASE_URL}support-tickets?page=${lazyState.page + 1}&limit=${lazyState.rows}&sort=${lazyState.sortField}&order=${lazyState.sortOrder === 1 ? 'asc' : 'desc'}`);
+                return {
+                    tickets: data,
+                    ticketsCount: headers['x-total-count']
+                };
+            },
+            initialData: {
+                tickets: [],
+                ticketsCount: 0
+            },
+            refetchOnMount: false,
+            refetchOnWindowFocus: false
+        });
+    };
+
+    const { isLoading, data, error, refetch } = useFetchProducts();
     if (isLoading) return <h1>Loading</h1>;
     if (error) return <h1>Error</h1>;
 
@@ -80,14 +101,39 @@ export default function TicketListing() {
             }} />;
     };
 
+    const onPage = (event) => {
+        setlazyState(event)
+    };
+
+    const onSort = (event) => {
+        console.log('event', event);
+        setlazyState(event)
+    };
+
+    useEffect(() => {
+        refetch();
+    }, [lazyState]);
+
     return (
         <div className="card mt-5">
-            <DataTable value={data} paginator header={header} rows={10}
-                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                rowsPerPageOptions={[10, 25, 50]} dataKey="id" >
+            <DataTable
+                value={data.tickets}
+                lazy
+                loading={isLoading}
+                paginator
+                header={header}
+                rows={10}
+                rowsPerPageOptions={[10, 25, 50]}
+                dataKey="id"
+                first={lazyState.first}
+                totalRecords={data.ticketsCount}
+                onPage={onPage}
+                onSort={onSort}
+                sortField={lazyState.sortField}
+                sortOrder={lazyState.sortOrder}
+            >
                 <Column field="title" header="Ticket details" sortable style={{ minWidth: '14rem' }} />
-                <Column header="Customer Name" sortable sortField="customer.name"
-                    style={{ minWidth: '14rem' }} body={customerNameTemplate} />
+                <Column field="customer.name" header="Customer Name" style={{ minWidth: '14rem' }} body={customerNameTemplate} />
                 <Column field="created_at" header="Date" sortable dataType="date" style={{ minWidth: '12rem' }} body={dateBodyTemplate} />
                 <Column field="priority" header="Priority" sortable style={{ minWidth: '12rem' }} body={priorityBodyTemplate} />
                 <Column field="status" header="Status" sortable style={{ minWidth: '12rem' }} body={statusBodyTemplate} />
