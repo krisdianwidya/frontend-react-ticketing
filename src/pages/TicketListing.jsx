@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
+import { Tag } from 'primereact/tag';
+import { classNames } from 'primereact/utils';
 
 const useFetchProducts = () => {
     return useQuery({
@@ -44,6 +46,40 @@ export default function TicketListing() {
         )
     };
 
+    const getPrioritySeverity = (priority) => {
+        switch (priority) {
+            case 'high':
+                return 'danger';
+
+            case 'medium':
+                return 'warning';
+
+            case 'low':
+                return 'success';
+        }
+    };
+
+    const priorityBodyTemplate = (rowData) => {
+        return <Tag value={rowData.priority} severity={getPrioritySeverity(rowData.priority)} rounded />;
+    };
+
+    const statusBodyTemplate = (rowData) => {
+        return <Tag unstyled value={rowData.status} severity={rowData.status} rounded
+            pt={{
+                root: ({ props }) => ({
+                    className: classNames(
+                        'p-tag p-component p-tag-rounded',
+                        {
+                            'bg-gray-50 border-1 border-black-alpha-80 text-black-alpha-80': props.severity === 'open',
+                            'bg-green-500': props.severity === 'approved',
+                            'bg-red-500': props.severity === 'rejected',
+                            'bg-blue-500': props.severity === 'in progress',
+                            'bg-blue-800': props.severity === 'closed',
+                        })
+                })
+            }} />;
+    };
+
     return (
         <div className="card mt-5">
             <DataTable value={data} paginator header={header} rows={10}
@@ -53,6 +89,8 @@ export default function TicketListing() {
                 <Column header="Customer Name" sortable sortField="customer.name"
                     style={{ minWidth: '14rem' }} body={customerNameTemplate} />
                 <Column field="created_at" header="Date" sortable dataType="date" style={{ minWidth: '12rem' }} body={dateBodyTemplate} />
+                <Column field="priority" header="Priority" sortable style={{ minWidth: '12rem' }} body={priorityBodyTemplate} />
+                <Column field="status" header="Status" sortable style={{ minWidth: '12rem' }} body={statusBodyTemplate} />
             </DataTable>
         </div>
     );
